@@ -1,0 +1,52 @@
+#!/bin/bash
+
+tasks_file="$HOME/Desktop/tasks.txt"
+
+display_help() {
+	echo "tlist ( https://github.com/iikyc )"	
+	echo "Usage: $0 [OPTIONS] \"task_name\""
+	__usage="Options:
+	ls, list	List all tasks (takes no parameters)
+	a, add		Adds a task to the tasklist
+	d, done		Marks a task as done and removes it from the tasklist"
+	echo "$__usage"
+	exit
+}
+
+case $1 in
+
+	list | ls)
+		if [ ! -f $tasks_file ]
+		then
+			echo "No tasks"
+		elif [[ -f $tasks_file && -z $(grep '[^[:space:]]' $tasks_file) ]]
+		then
+			echo "No tasks"
+		else
+			cat -b $tasks_file | grep -v "^[[:blank:]]*$"
+		fi
+		;;
+	add | a)
+		if [ -z "$2" ]
+		then
+			display_help
+		else
+			echo "$2" >> $tasks_file
+		fi
+		;;
+	done | d)
+		if [ ! -f $tasks_file ]
+		then
+			echo "No tasks"
+		
+		else
+		grep -v "$2" $tasks_file > taskstmp; mv taskstmp $tasks_file
+		remaining_tasks=$(cat $tasks_file | wc -l)
+		echo "$2 done, $remaining_tasks tasks left"
+		fi
+		;;
+	*)
+		display_help
+		exit 1
+		;;
+esac
